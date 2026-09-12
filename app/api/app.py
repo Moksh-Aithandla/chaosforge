@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request
+from app.services.experiment_service import run_experiment
 
 app = Flask(__name__)
 
@@ -34,17 +35,15 @@ def create_experiment():
     action = data.get("action")
     duration_seconds = data.get("duration_seconds")
 
-    if not target or not action or not duration_seconds:
+    if not target or not action or duration_seconds is None:
         return jsonify({
             "error": "target, action, and duration_seconds are required"
         }), 400
 
-    return jsonify({
-        "message": "Experiment accepted",
-        "experiment": {
-            "target": target,
-            "action": action,
-            "duration_seconds": duration_seconds,
-            "status": "simulated"
-        }
-    }), 202
+    result = run_experiment(
+        target=target,
+        action=action,
+        duration_seconds=duration_seconds
+    )
+
+    return jsonify(result), 202

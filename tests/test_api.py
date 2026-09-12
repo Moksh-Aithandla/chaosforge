@@ -32,8 +32,9 @@ def test_create_experiment():
     )
 
     assert response.status_code == 202
-    assert response.json["message"] == "Experiment accepted"
-    assert response.json["experiment"]["status"] == "simulated"
+    assert response.json["message"] == "Experiment simulated successfully"
+    assert response.json["experiment_id"]
+    assert response.json["status"] == "simulated"
 
 def test_create_experiment_missing_fields():
     client = app.test_client()
