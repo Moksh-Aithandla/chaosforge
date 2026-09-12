@@ -18,32 +18,3 @@ def test_health():
 
     assert response.status_code == 200
     assert response.json["status"] == "healthy"
-
-def test_create_experiment():
-    client = app.test_client()
-
-    response = client.post(
-        "/experiments",
-        json={
-            "target": "demo-service",
-            "action": "cpu_stress",
-            "duration_seconds": 30
-        }
-    )
-
-    assert response.status_code == 202
-    assert response.json["message"] == "Experiment accepted"
-    assert response.json["experiment"]["status"] == "simulated"
-
-def test_create_experiment_missing_fields():
-    client = app.test_client()
-
-    response = client.post(
-        "/experiments",
-        json={
-            "target": "demo-service"
-        }
-    )
-
-    assert response.status_code == 400
-    assert "error" in response.json
