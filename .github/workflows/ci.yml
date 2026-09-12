@@ -26,7 +26,9 @@ jobs:
         run: pip install -r app/api/requirements.txt
 
       - name: Run tests
-        run: pytest
+        run: python -m pytest
+        env:
+          PYTHONPATH: .
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
