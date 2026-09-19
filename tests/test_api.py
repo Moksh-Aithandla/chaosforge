@@ -48,3 +48,31 @@ def test_create_experiment_missing_fields():
 
     assert response.status_code == 400
     assert "error" in response.json
+
+def test_get_experiment():
+    client = app.test_client()
+
+    create_response = client.post(
+        "/experiments",
+        json={
+            "target": "demo-service",
+            "action": "cpu_stress",
+            "duration_seconds": 30
+        }
+    )
+
+    experiment_id = create_response.json["experiment_id"]
+
+    get_response = client.get(f"/experiments/{experiment_id}")
+
+    assert get_response.status_code == 200
+    assert get_response.json["experiment_id"] == experiment_id
+    assert get_response.json["status"] == "simulated"
+
+def test_get_missing_experiment():
+    client = app.test_client()
+
+    response = client.get("/experiments/does-not-exist")
+
+    assert response.status_code == 404
+    assert response.json["error"] == "Experiment not found"

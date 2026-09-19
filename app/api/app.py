@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 from app.services.experiment_service import run_experiment
+from app.services.experiment_store import save_experiment, get_experiment
 
 app = Flask(__name__)
 
@@ -46,4 +47,19 @@ def create_experiment():
         duration_seconds=duration_seconds
     )
 
+    save_experiment(result)
+
     return jsonify(result), 202
+
+@app.route("/experiments/<experiment_id>", methods=["GET"])
+def retrieve_experiment(experiment_id):
+    experiment = get_experiment(experiment_id)
+
+    if experiment is None:
+        return jsonify({
+            "error": "Experiment not found"
+        }), 404
+
+    return jsonify(experiment), 200
+
+
