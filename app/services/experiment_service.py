@@ -1,12 +1,14 @@
 from uuid import uuid4
 
+from app.services.experiment_status import PENDING
 
-def run_experiment(target, action, duration_seconds):
+
+def build_experiment(target, action, duration_seconds):
     return {
         "experiment_id": str(uuid4()),
         "target": target,
         "action": action,
         "duration_seconds": duration_seconds,
-        "status": "simulated",
-        "message": "Experiment simulated successfully"
+        "status": PENDING,
+        "message": "Experiment created successfully"
     }

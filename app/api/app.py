@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from app.services.experiment_service import run_experiment
+from app.services.experiment_service import build_experiment
 from app.services.experiment_store import save_experiment, get_experiment
 
 app = Flask(__name__)
@@ -41,7 +41,7 @@ def create_experiment():
             "error": "target, action, and duration_seconds are required"
         }), 400
 
-    result = run_experiment(
+    result = build_experiment(
         target=target,
         action=action,
         duration_seconds=duration_seconds
