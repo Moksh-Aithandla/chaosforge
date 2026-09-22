@@ -2,9 +2,13 @@ from flask import Flask, jsonify, request
 from app.services.experiment_service import build_experiment
 from app.services.experiment_store import save_experiment, get_experiment
 from app.services.experiment_worker import execute_experiment
-
+from app.services.experiment_store import (
+    initialize_database,
+    save_experiment,
+    get_experiment,
+)
 app = Flask(__name__)
-
+initialize_database()
 
 @app.route("/")
 def home():
