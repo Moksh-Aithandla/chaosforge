@@ -6,6 +6,9 @@
 *.tfvars.json
 crash.log
 crash.*.log
+chaosforge.db
+test_chaosforge.db
+
 
 # Terraform override files
 override.tf
