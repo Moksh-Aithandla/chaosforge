@@ -1,3 +1,7 @@
+import os
+
+os.environ["CHAOSFORGE_DATABASE"] = "test_chaosforge.db"
+
 from app.api.app import app
 from app.services.experiment_worker import execute_experiment
 from app.services.experiment_store import get_experiment, save_experiment
@@ -143,3 +147,27 @@ def test_execute_missing_experiment():
 
     assert response.status_code == 404
     assert response.json["error"] == "Experiment not found"
+
+def test_experiment_persistence():
+    experiment = {
+        "experiment_id": "test-persistence-123",
+        "target": "demo-service",
+        "action": "cpu_stress",
+        "duration_seconds": 30,
+        "status": "pending",
+        "message": "Experiment created successfully"
+    }
+
+    save_experiment(experiment)
+
+    stored_experiment = get_experiment("test-persistence-123")
+
+    assert stored_experiment is not None
+    assert stored_experiment["experiment_id"] == "test-persistence-123"
+    assert stored_experiment["target"] == "demo-service"
+    assert stored_experiment["action"] == "cpu_stress"
+    assert stored_experiment["status"] == "pending"
+
+def teardown_module():
+    if os.path.exists("test_chaosforge.db"):
+        os.remove("test_chaosforge.db")

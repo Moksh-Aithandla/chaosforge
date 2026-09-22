@@ -1,7 +1,8 @@
+import os
 import sqlite3
 
 
-DATABASE = "chaosforge.db"
+DATABASE = os.getenv("CHAOSFORGE_DATABASE", "chaosforge.db")
 
 
 def get_connection():
