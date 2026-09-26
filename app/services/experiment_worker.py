@@ -39,3 +39,6 @@ def process_next_experiment():
         return execute_experiment(experiment_id)
     finally:
         mark_complete()
+def run_worker():
+    while True:
+        process_next_experiment()
