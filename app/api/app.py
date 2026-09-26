@@ -7,6 +7,9 @@ from app.services.experiment_store import (
     save_experiment,
     get_experiment,
 )
+from app.services.experiment_queue import enqueue_experiment
+
+
 app = Flask(__name__)
 initialize_database()
 
@@ -53,6 +56,7 @@ def create_experiment():
     )
 
     save_experiment(result)
+    enqueue_experiment(result["experiment_id"])
 
     return jsonify(result), 202
 
