@@ -1,5 +1,8 @@
+from queue import Empty
+
 from app.services.experiment_status import RUNNING, COMPLETED, FAILED
 from app.services.experiment_store import get_experiment, save_experiment
+from app.services.experiment_queue import dequeue_experiment, mark_complete
 
 
 def execute_experiment(experiment_id):
@@ -25,27 +28,14 @@ def execute_experiment(experiment_id):
 
     return experiment
 
-def test_execute_experiment():
-    client = app.test_client()
 
-    create_response = client.post(
-        "/experiments",
-        json={
-            "target": "demo-service",
-            "action": "cpu_stress",
-            "duration_seconds": 30
-        }
-    )
+def process_next_experiment():
+    try:
+        experiment_id = dequeue_experiment(timeout=1)
+    except Empty:
+        return None
 
-    experiment_id = create_response.json["experiment_id"]
-
-    result = execute_experiment(experiment_id)
-
-    assert result["experiment_id"] == experiment_id
-    assert result["status"] == "completed"
-    assert result["message"] == "Experiment completed successfully"
-
-def test_execute_missing_experiment():
-    result = execute_experiment("does-not-exist")
-
-    assert result is None
+    try:
+        return execute_experiment(experiment_id)
+    finally:
+        mark_complete()
