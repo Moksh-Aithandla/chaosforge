@@ -3,10 +3,19 @@ import os
 os.environ["CHAOSFORGE_DATABASE"] = "test_chaosforge.db"
 
 from app.api.app import app
-from app.services.experiment_worker import execute_experiment
+from app.services.experiment_worker import (
+    execute_experiment,
+    process_next_experiment,
+)
 from app.services.experiment_store import get_experiment, save_experiment
 from app.services.experiment_queue import dequeue_experiment, mark_complete
 from app.services.experiment_queue import clear_queue
+from app.services.experiment_queue import (
+    enqueue_experiment,
+    dequeue_experiment,
+    mark_complete,
+    clear_queue,
+)
 
 def test_home():
     client = app.test_client()
@@ -178,3 +187,29 @@ def teardown_module():
 
     if os.path.exists("test_chaosforge.db"):
         os.remove("test_chaosforge.db")
+
+def test_worker_processes_next_experiment():
+    clear_queue()
+
+    experiment = {
+        "experiment_id": "worker-queue-test",
+        "target": "test-target",
+        "action": "restart",
+        "duration_seconds": 10,
+        "status": "pending",
+        "message": "Experiment created successfully",
+    }
+
+    save_experiment(experiment)
+    enqueue_experiment(experiment["experiment_id"])
+
+    result = process_next_experiment()
+
+    assert result is not None
+    assert result["experiment_id"] == "worker-queue-test"
+    assert result["status"] == "completed"
+    assert result["message"] == "Experiment completed successfully"
+
+    stored_experiment = get_experiment("worker-queue-test")
+
+    assert stored_experiment["status"] == "completed"
