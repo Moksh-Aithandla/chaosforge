@@ -5,7 +5,8 @@ os.environ["CHAOSFORGE_DATABASE"] = "test_chaosforge.db"
 from app.api.app import app
 from app.services.experiment_worker import execute_experiment
 from app.services.experiment_store import get_experiment, save_experiment
-
+from app.services.experiment_queue import dequeue_experiment, mark_complete
+from app.services.experiment_queue import clear_queue
 
 def test_home():
     client = app.test_client()
@@ -42,6 +43,10 @@ def test_create_experiment():
     assert response.json["message"] == "Experiment created successfully"
     assert response.json["experiment_id"]
     assert response.json["status"] == "pending"
+    queued_experiment_id = dequeue_experiment()
+    assert queued_experiment_id == response.json["experiment_id"]
+    mark_complete()
+    
 
 
 def test_create_experiment_missing_fields():
@@ -169,5 +174,7 @@ def test_experiment_persistence():
     assert stored_experiment["status"] == "pending"
 
 def teardown_module():
+    clear_queue()
+
     if os.path.exists("test_chaosforge.db"):
         os.remove("test_chaosforge.db")
