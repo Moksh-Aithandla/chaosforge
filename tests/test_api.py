@@ -13,7 +13,6 @@ from app.services.experiment_queue import clear_queue
 from app.services.experiment_queue import (
     enqueue_experiment,
     dequeue_experiment,
-    mark_complete,
     clear_queue,
 )
 
@@ -54,7 +53,6 @@ def test_create_experiment():
     assert response.json["status"] == "pending"
     queued_experiment_id = dequeue_experiment()
     assert queued_experiment_id == response.json["experiment_id"]
-    mark_complete()
     
 
 
@@ -213,3 +211,4 @@ def test_worker_processes_next_experiment():
     stored_experiment = get_experiment("worker-queue-test")
 
     assert stored_experiment["status"] == "completed"
+

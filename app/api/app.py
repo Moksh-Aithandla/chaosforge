@@ -1,17 +1,19 @@
 from flask import Flask, jsonify, request
+
 from app.services.experiment_service import build_experiment
-from app.services.experiment_store import save_experiment, get_experiment
-from app.services.experiment_worker import execute_experiment
 from app.services.experiment_store import (
     initialize_database,
     save_experiment,
     get_experiment,
 )
+from app.services.experiment_worker import execute_experiment
 from app.services.experiment_queue import enqueue_experiment
 
 
 app = Flask(__name__)
+
 initialize_database()
+
 
 @app.route("/")
 def home():
@@ -28,9 +30,6 @@ def health():
     })
 
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080)
-    
 @app.route("/experiments", methods=["POST"])
 def create_experiment():
     data = request.get_json()
@@ -60,6 +59,7 @@ def create_experiment():
 
     return jsonify(result), 202
 
+
 @app.route("/experiments/<experiment_id>", methods=["GET"])
 def retrieve_experiment(experiment_id):
     experiment = get_experiment(experiment_id)
@@ -82,3 +82,7 @@ def execute_experiment_route(experiment_id):
         }), 404
 
     return jsonify(result), 200
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8080)

@@ -1,8 +1,6 @@
-from queue import Empty
-
 from app.services.experiment_status import RUNNING, COMPLETED, FAILED
 from app.services.experiment_store import get_experiment, save_experiment
-from app.services.experiment_queue import dequeue_experiment, mark_complete
+from app.services.experiment_queue import dequeue_experiment
 
 
 def execute_experiment(experiment_id):
@@ -30,15 +28,14 @@ def execute_experiment(experiment_id):
 
 
 def process_next_experiment():
-    try:
-        experiment_id = dequeue_experiment(timeout=1)
-    except Empty:
+    experiment_id = dequeue_experiment(timeout=1)
+
+    if experiment_id is None:
         return None
 
-    try:
-        return execute_experiment(experiment_id)
-    finally:
-        mark_complete()
+    return execute_experiment(experiment_id)
+
+
 def run_worker():
     while True:
         process_next_experiment()

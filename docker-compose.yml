@@ -1,0 +1,37 @@
+services:
+
+  redis:
+    image: redis:7
+    container_name: chaosforge-redis
+    ports:
+      - "6379:6379"
+
+  api:
+    build: .
+    container_name: chaosforge-api
+    ports:
+      - "8080:8080"
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      CHAOSFORGE_DATABASE: /data/chaosforge.db
+    volumes:
+      - chaosforge-data:/data
+    depends_on:
+      - redis
+
+  worker:
+    build: .
+    container_name: chaosforge-worker
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      CHAOSFORGE_DATABASE: /data/chaosforge.db
+    volumes:
+      - chaosforge-data:/data
+    depends_on:
+      - redis
+    command: ["python", "-m", "app.worker"]
+
+volumes:
+  chaosforge-data:
